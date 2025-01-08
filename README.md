@@ -122,3 +122,9 @@ They're often compared to virtual machines but are much more efficient because t
 
 10. **Removing Unused Layers**  
     - Use `docker system prune` to clean up unused layers and free up disk space.  
+
+
+
+
+# Important Tips
+1. Optimiztion using layers moving npm about the code changes for faster build.
