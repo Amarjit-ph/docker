@@ -127,4 +127,4 @@ They're often compared to virtual machines but are much more efficient because t
 
 
 # Important Tips
-1. Optimiztion using layers moving npm about the code changes for faster build.
+1. Optimization build time from layers by moving node modules before the frequent code changes.
