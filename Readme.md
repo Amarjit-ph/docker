@@ -125,6 +125,258 @@ They're often compared to virtual machines but are much more efficient because t
 
 
 
+# Basic Docker Commands
 
-# Important Tips
-1. Optimization build time from layers by moving node modules before the frequent code changes.
+###  1. Build a Docker Image 🏗️  
+```sh
+docker build -t my-node-app .
+```
+- Builds a Docker image from the current directory (`.`).  
+- `-t my-node-app` assigns a name to the image.  
+
+
+###  2. Run a Docker Container ▶️  
+```sh
+docker run -p 3000:3000 my-node-app
+```
+- Starts a container from the `my-node-app` image.  
+- Maps **port 3000** of the container to **port 3000** on the host.  
+
+#### Run in Detached Mode (-d) 🏃  
+```sh
+docker run -d -p 3000:3000 my-node-app
+```
+- Runs the container in the background (detached mode).  
+
+
+###  3. List Running Containers 📋  
+```sh
+docker ps
+```
+- Lists all **running** containers.  
+
+```sh
+docker ps -a
+```
+- Lists **all** containers (including stopped ones).  
+
+
+###  4. Stop a Running Container ⛔  
+```sh
+docker stop <container_id>
+```
+- Stops a running container by its **ID**.  
+
+
+###  5. Remove a Container 🗑️  
+```sh
+docker rm <container_id>
+```
+- Deletes a **stopped** container.  
+
+```sh
+docker container prune
+```
+- Removes **all** stopped containers.  
+
+
+###  6. Remove an Image ❌  
+```sh
+docker rmi my-node-app
+```
+- Deletes the `my-node-app` image.  
+
+```sh
+docker image prune -a
+```
+- Removes **all unused** images.  
+
+
+###  7. Name & Tag an Image 🏷️  
+
+#### Name and tag during build
+```sh
+docker build -t my-node-app:v1 .
+```
+- Tags the image as `v1`.  
+
+#### Tag an existing image
+```sh
+docker tag my-node-app:v1 mydockerhubusername/my-node-app:v1
+```
+- Prepares the image for pushing to Docker Hub.  
+
+
+###  8. Push an Image to Docker Hub 📤  
+```sh
+docker login
+```
+- Logs into Docker Hub.  
+
+```sh
+docker push mydockerhubusername/my-node-app:v1
+```
+- Pushes the image to Docker Hub.  
+
+
+###  9. Pull an Image from Docker Hub 📥  
+```sh
+docker pull node:18-alpine
+```
+- Downloads the **Node.js Alpine** image from Docker Hub.  
+
+
+###  10. Run a Container in Interactive Mode 💻  
+```sh
+docker run -it node:18-alpine sh
+```
+- Runs an interactive shell (`sh`) inside the container.  
+- `-it` allows user interaction.  
+
+To exit, type:
+```sh
+exit
+```
+
+
+###  11. View Container Logs 📜  
+```sh
+docker logs <container_id>
+```
+- Shows logs of the running container.  
+
+```sh
+docker logs -f <container_id>
+```
+- Follows real-time logs.  
+
+
+###  12. Execute Commands in a Running Container 🛠️  
+```sh
+docker exec -it <container_id> sh
+```
+- Opens a shell inside a running container.  
+
+
+###  13. Restart a Container 🔄  
+```sh
+docker restart <container_id>
+```
+- Restarts a running or stopped container.  
+
+
+###  14. Clean Up Unused Resources 🧹  
+```sh
+docker system prune -a
+```
+- Deletes **unused** containers, images, and networks.  
+
+
+###  15. Save & Load Docker Images 💾  
+#### Save an image to a file:
+```sh
+docker save -o my-image.tar my-node-app
+```
+- Saves the `my-node-app` image to `my-image.tar`.  
+
+#### Load an image from a file:
+```sh
+docker load -i my-image.tar
+```
+- Loads a Docker image from `my-image.tar`.  
+
+# Volumes 
+
+### 1. What is a Docker Volume? 🗄️  
+Docker **volume** is a storage mechanism that helps persist data outside of the container's filesystem. It allows data to **survive** even after the container stops or is deleted.
+
+#### Why is it Required?  
+- Containers have **ephemeral storage**, meaning data inside the container is **lost** when it stops.
+- Volumes **persist data** between container restarts.
+- They provide **better performance** than bind mounts.
+- Volumes allow **multiple containers** to share data.
+
+
+### 2. Types of Docker Volumes 📂  
+### 1️⃣ **Anonymous Volume**  
+- Docker manages it automatically.
+- Removed when the container is deleted.
+- Used for **temporary data**.
+
+### 2️⃣ **Named Volume**  
+- Created and managed explicitly by the user.
+- Can be shared between multiple containers.
+- Persistent even after container deletion.
+
+### 3️⃣ **Bind Mount**  
+- Maps a **host directory** to a container directory.
+- Offers flexibility but can be **risky** (depends on host OS structure).
+
+
+### 3. Creating and Using Docker Volumes 🛠️  
+
+#### **1. Create a Named Volume**
+```sh
+docker volume create my-volume
+```
+
+#### **2. Use a Volume in a Container**
+```sh
+docker run -d -v my-volume:/app/data --name my-container my-image
+```
+- `-v my-volume:/app/data` → Mounts `my-volume` to `/app/data` in the container.
+- Data stored inside `/app/data` will **persist** even if the container stops.
+
+#### **3. Use an Anonymous Volume**
+```sh
+docker run -d -v /app/data --name my-container my-image
+```
+- Docker assigns a **random name** to the volume.
+- Lost when the container is removed.
+
+#### **4. Use a Bind Mount**
+```sh
+docker run -d -v $(pwd)/data:/app/data --name my-container my-image
+```
+- Mounts the **host directory** `$(pwd)/data` to `/app/data` in the container.
+- Changes in the container reflect on the **host machine**.
+
+
+### 4. Managing Docker Volumes 
+
+#### **1. List All Volumes**
+```sh
+docker volume ls
+```
+
+#### **2. Inspect a Volume**
+```sh
+docker volume inspect my-volume
+```
+- Shows volume details (path, mount point, etc.).
+
+#### **3. Remove a Volume**
+```sh
+docker volume rm my-volume
+```
+- Deletes a specific volume.
+
+#### **4. Remove All Unused Volumes**
+```sh
+docker volume prune
+```
+- Deletes **all** unused volumes.
+
+
+## 5. Sharing Volumes Between Containers
+#### **1. Start a Container and Create a Volume**
+```sh
+docker run -d -v shared-data:/app/data --name container1 my-image
+```
+
+#### **2. Start Another Container Using the Same Volume**
+```sh
+docker run -d -v shared-data:/app/data --name container2 my-image
+```
+- Both containers **share data** via `shared-data` volume.
+
